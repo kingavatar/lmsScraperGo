@@ -3,7 +3,7 @@ package scraper
 import (
         "log"
         "os"
-        // "fmt"
+        "errors"
         "bytes"
         "net/http/cookiejar"
         "net/http"
@@ -21,7 +21,10 @@ func Start() error {
 	app = App{
 		Client: &http.Client{Jar: jar},
 	}
-  app.login()
+  loginstatus,_:=app.login()
+  if(len(loginstatus)>0){
+    return errors.New(loginstatus)
+  }
   return nil 
 }
 
@@ -49,4 +52,15 @@ func GetUnknownResponse() []byte{
     var buffer bytes.Buffer
     buffer.WriteString("Unknown Command\n")
     return buffer.Bytes()
+}
+
+//SetUserPass sets username and password
+func SetUserPass(user string,pass string){
+  username = user
+  password = pass
+}
+
+//GetUserName returns username
+func GetUserName() string{
+  return username
 }

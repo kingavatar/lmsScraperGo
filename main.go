@@ -15,7 +15,7 @@ import(
 const (
 
 		// name of the service
-		name        = "kingScraperService"
+		name        = "kingScraper"
 		description = "kingavatar lmsScraper Service"
 
 		// port which daemon should be listen
@@ -171,7 +171,11 @@ func main(){
         os.Exit(1)
     }
     service := &Service{srv}
-    StartJob()
+    err=StartJob()
+    if err != nil{
+      errlog.Println(err)
+      os.Exit(1)
+    }
     status, err := service.Manage()
     if err != nil {
         errlog.Println(status, "\nError: ", err)

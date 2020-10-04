@@ -6,7 +6,7 @@ import (
 	// "net/http/cookiejar"
 	"log"
 	"net/url"
-	"io/ioutil"
+	// "io/ioutil"
 	"github.com/PuerkitoBio/goquery"
 )
 
@@ -25,9 +25,10 @@ type SessKey struct {
 	SessKey string
 }
 var (
-	username = "yourusername"
-	password = "yourpassword"
+	username = "XXXXXX"
+	password = "XXXXXX"
 )
+
 func (app *App) getToken() loginToken {
 	loginURL := baseURL + "login/index.php"
 	client := app.Client
@@ -78,7 +79,7 @@ func (app *App) getSessKey() SessKey {
 
 	return SessKey
 }
-func  (app *App) login() {
+func  (app *App) login() (string,error){
 	client := app.Client
 
 	loginToken := app.getToken()
@@ -95,15 +96,20 @@ func  (app *App) login() {
 
 	if err != nil {
 		log.Fatalln(err)
+		return "Error Login",err
 	}
 
 	defer response.Body.Close()
 
-	_, err = ioutil.ReadAll(response.Body)
+	document, err := goquery.NewDocumentFromReader(response.Body)
+	loginerror:=document.Find("#loginerrormessage").Text()
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal("Error loading HTTP response body. ", err)
+		return "Error Login",err
 	}
+	
 	log.Println("Response Loggen in: ",response.Status)
+	return loginerror,nil
 }
 
 func (app *App) logout(){
