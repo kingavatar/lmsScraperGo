@@ -16,6 +16,7 @@ const (
 //App is the base http Client
 type App struct {
 	Client *http.Client
+	isLoggedIn bool
 }
 type loginToken struct {
 	Token string
@@ -108,7 +109,10 @@ func  (app *App) login() (string,error){
 		return "Error Login",err
 	}
 	
-	log.Println("Response Loggen in: ",response.Status)
+	// log.Println("Response Logging in: ",response.Status)
+	if len(loginerror)==0 {
+		app.isLoggedIn = true
+	}
 	return loginerror,nil
 }
 
@@ -126,6 +130,9 @@ func (app *App) logout(){
 	}
 
 	defer response.Body.Close()
-	log.Println("Response Status Logged Out: ",response.Status)
+	// log.Println("Response Status Logging Out: ",response.Status)
+	if app.isLoggedIn {
+		app.isLoggedIn = false
+	}
 
 }

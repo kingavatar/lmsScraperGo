@@ -1,22 +1,24 @@
 package scraper
 
 import (
-        "log"
-        "os"
+	      // "fmt"
+        // "log"
+        // "os"
         "errors"
         "bytes"
         "net/http/cookiejar"
         "net/http"
 )
 var app App
+
 //Start Scraper 
 func Start() error {
-  file, errlog := os.OpenFile("logs.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
-  if errlog != nil {
-        log.Fatal(errlog)
-    }
+  // file, errlog := os.OpenFile("logs.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+  // if errlog != nil {
+        // log.Fatal(errlog)
+    // }
 
-  log.SetOutput(file)
+  // log.SetOutput(file)
   jar, _ := cookiejar.New(nil)
 	app = App{
 		Client: &http.Client{Jar: jar},
@@ -30,7 +32,11 @@ func Start() error {
 
 //Stop Scraper
 func Stop() error{
-  app.logout()
+  if app.isLoggedIn{
+    app.logout()
+  } else{
+    return errors.New("Service was not Started to Stop so ... did not stop the service")
+  }
   return nil
 }
 
@@ -42,6 +48,21 @@ func GetEvents() []byte{
     buffer.WriteString(event.Title)
     buffer.WriteString(" ")
     buffer.WriteString(event.Deadline)
+    buffer.WriteString("\n")
+  }
+  return buffer.Bytes()
+}
+
+//GetAnnouncements to get Announcements byte array
+func GetAnnouncements() []byte{
+  announcements:=app.getAnnouncements()
+  var buffer bytes.Buffer
+  for _,announcement := range announcements{
+    buffer.WriteString(announcement.Date)
+    buffer.WriteString(" ")
+    buffer.WriteString(announcement.Name)
+    buffer.WriteString(" ")
+    buffer.WriteString(announcement.Info)
     buffer.WriteString("\n")
   }
   return buffer.Bytes()

@@ -32,7 +32,7 @@ const (
   // Manage by daemon commands or run the daemon
 	func (service *Service) Manage() (string, error) {
 
-		usage := "Usage: myservice install | remove | start | stop | status"
+		usage := "Usage: lmsScrpaerGo install | remove | start | stop | status"
 
 		// if received any kind of command, do it
 		if len(os.Args) > 1 {
@@ -42,10 +42,11 @@ const (
 				return service.Install()
 			case "remove":
 				return service.Remove()
-      case "start":
-        StartJob()
+      		case "start":
+				StartJob()
 				return service.Start()
 			case "stop":
+				StopJob()
 				return service.Stop()
 			case "status":
 				return service.Status()
@@ -114,7 +115,9 @@ func handleConnection(c net.Conn,listener net.Listener){
         args=strings.TrimSpace(string(data))
         if(args=="events"){
           data =scraper.GetEvents()
-        } else {
+		}else if(args=="announcements"){
+          data =scraper.GetAnnouncements()
+        }else {
         data=scraper.GetUnknownResponse()
         }
         _, err = c.Write(data)
@@ -124,15 +127,8 @@ func handleConnection(c net.Conn,listener net.Listener){
 
 }
 
-//Init to start some stuff taken from daemon example code
-func Init() {
-    stdlog = log.New(os.Stdout, "", log.Ldate|log.Ltime)
-    errlog = log.New(os.Stderr, "", log.Ldate|log.Ltime)
-}
-
-//Start Function to run service Starts
+//StartJob Function to run service Starts
 func StartJob() error{
-  Init()
   if err:= scraper.Start(); err != nil {
       return err
   }
@@ -141,12 +137,11 @@ func StartJob() error{
   return nil
 }
 
-//Stop Function to run service Stops
-func Stop() error{
+//StopJob Function to run service Stops
+func StopJob() error{
   if err:= scraper.Stop(); err != nil {
       return err
   }
-  // fmt.Println("The Service has Started")
   return nil
 }
 
@@ -165,17 +160,21 @@ func main(){
 // 	}
 // 	go handleConnection(conn)
 // }
+	stdlog = log.New(os.Stdout, "", log.Ldate|log.Ltime)
+    errlog = log.New(os.Stderr, "", log.Ldate|log.Ltime)
     srv, err := daemon.New(name, description, daemon.SystemDaemon) //dependencies...)
     if err != nil {
         errlog.Println("Error: ", err)
         os.Exit(1)
     }
-    service := &Service{srv}
-    err=StartJob()
-    if err != nil{
-      errlog.Println(err)
-      os.Exit(1)
-    }
+	service := &Service{srv}
+	if len(os.Args) < 2 {
+		err=StartJob()
+		if err != nil{
+		errlog.Println(err)
+		os.Exit(1)
+		}
+	}
     status, err := service.Manage()
     if err != nil {
         errlog.Println(status, "\nError: ", err)

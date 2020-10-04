@@ -4,6 +4,7 @@ import(
 	"log"
 	"github.com/PuerkitoBio/goquery"
 	// "fmt"
+	"strconv"
 	"encoding/json"
 	 "io/ioutil"
 	"net/http"
@@ -25,8 +26,15 @@ type Course struct{
 	Code string `json:"shortname"`
 	CourseID int `json:"id"`
 	URL string `json:"viewurl"`
+	Isfavorite bool `json:"isfavourite"`
 }
 
+//Announcement Type
+type Announcement struct{
+	Date string
+	Name string
+	Info string
+}
 //getEvent() function
 func (app *App) getEvents() []Event{
 	var Events []Event
@@ -96,4 +104,37 @@ func (app *App) getCourses() []Course{
         log.Fatalln("Error Reading json Data: ",err)
 	}
 	return result[0].Data.Courses
+}
+
+func (app *App) getAnnouncements() []Announcement{
+	var Announcements []Announcement
+	for _,course :=range app.getCourses(){
+			if !course.Isfavorite {continue}
+			coursePageURL:=baseURL+"course/view.php?id="+strconv.FormatInt(int64(course.CourseID), 10)
+			client := app.Client
+
+			response, err := client.Get(coursePageURL)
+
+			if err != nil {
+				log.Fatalln("Error fetching response. ", err)
+			}
+
+			defer response.Body.Close()
+			document, err := goquery.NewDocumentFromReader(response.Body)
+			if err != nil {
+				log.Fatal("Error loading HTTP response body. ", err)
+			}
+			document.Find(".post").Each(func(i int, s *goquery.Selection) {
+			name:=s.Find(".name").Text()
+			date:=s.Find(".date").Text()
+			info:=s.Find(".info").Text()
+			announcement:= Announcement{
+				Name:name,
+				Date:date,
+				Info:info,
+			}
+			Announcements = append(Announcements,announcement)
+		})
+	}
+	return Announcements
 }
