@@ -47,11 +47,22 @@ func Stop() error{
 func GetEvents() []byte{
   events:=app.getEvents()
   var buffer bytes.Buffer
+  courseID:=0
+  var setColor bool
   for _,event := range events{
-    buffer.WriteString(event.Title)
+    if courseID!=event.CourseID{
+      courseID = event.CourseID
+      buffer.WriteString("${#FAA916}")
+      setColor = true
+    }
+    buffer.WriteString(event.Name)
     buffer.WriteString(" ")
-    buffer.WriteString(event.Deadline)
+    buffer.WriteString(event.Formattedtime)
     buffer.WriteString("\n")
+    if setColor {
+      setColor = false
+      buffer.WriteString("${#FBFFFE}")
+    }
   }
   return buffer.Bytes()
 }
