@@ -34,6 +34,7 @@ type Announcement struct{
 	Date string
 	Name string
 	Info string
+	CourseID int
 }
 //getEvent() function
 func (app *App) getEvents() []Event{
@@ -132,6 +133,7 @@ func (app *App) getAnnouncements() []Announcement{
 				Name:name,
 				Date:date,
 				Info:info,
+				CourseID:course.CourseID,
 			}
 			Announcements = append(Announcements,announcement)
 		})

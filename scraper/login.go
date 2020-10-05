@@ -52,7 +52,7 @@ func (app *App) getToken() loginToken {
 	loginToken := loginToken{
 		Token: token,
 	}
-
+	
 	return loginToken
 }
 func (app *App) getSessKey() SessKey {
@@ -108,8 +108,9 @@ func  (app *App) login() (string,error){
 		log.Fatal("Error loading HTTP response body. ", err)
 		return "Error Login",err
 	}
-	
-	// log.Println("Response Logging in: ",response.Status)
+	if *Debug{
+		log.Println("Response Logging in: ",response.Status)
+	}
 	if len(loginerror)==0 {
 		app.isLoggedIn = true
 	}
@@ -130,7 +131,9 @@ func (app *App) logout(){
 	}
 
 	defer response.Body.Close()
-	// log.Println("Response Status Logging Out: ",response.Status)
+	if *Debug{
+		log.Println("Response Status Logging Out: ",response.Status)
+	}
 	if app.isLoggedIn {
 		app.isLoggedIn = false
 	}

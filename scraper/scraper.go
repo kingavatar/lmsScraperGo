@@ -6,11 +6,14 @@ import (
         // "os"
         "errors"
         "bytes"
+        "strings"
         "net/http/cookiejar"
         "net/http"
 )
 var app App
 
+//Debug to set debugging mode 
+var Debug *bool
 //Start Scraper 
 func Start() error {
   // file, errlog := os.OpenFile("logs.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
@@ -57,13 +60,25 @@ func GetEvents() []byte{
 func GetAnnouncements() []byte{
   announcements:=app.getAnnouncements()
   var buffer bytes.Buffer
+  courseID:=0
+  var setColor bool
   for _,announcement := range announcements{
+    if courseID!=announcement.CourseID{
+      courseID = announcement.CourseID
+      buffer.WriteString("${#FAA916}")
+      setColor = true
+    }
     buffer.WriteString(announcement.Date)
-    buffer.WriteString(" ")
+    buffer.WriteString("   ")
     buffer.WriteString(announcement.Name)
-    buffer.WriteString(" ")
-    buffer.WriteString(announcement.Info)
+    buffer.WriteString("   ")
+    info:=strings.ReplaceAll(announcement.Info,"#","\\#")
+    buffer.WriteString(info)
     buffer.WriteString("\n")
+    if setColor {
+      setColor = false
+      buffer.WriteString("${#FBFFFE}")
+    }
   }
   return buffer.Bytes()
 }
@@ -84,4 +99,9 @@ func SetUserPass(user string,pass string){
 //GetUserName returns username
 func GetUserName() string{
   return username
+}
+
+//SetDebugMode to set debug Mode
+func SetDebugMode(debug *bool){
+    Debug=debug
 }

@@ -2,7 +2,8 @@ package main
 
 import(
     "fmt"
-    "net"
+	"net"
+	"flag"
     "log"
     "os"
     "os/signal"
@@ -23,7 +24,8 @@ const (
   )
   
   var stdlog, errlog *log.Logger
-
+  //Debug to set debugging mode 
+  var Debug *bool
 	// Service has embedded daemon
 	type Service struct {
 		daemon.Daemon
@@ -50,6 +52,8 @@ const (
 				return service.Stop()
 			case "status":
 				return service.Status()
+			case "-d":
+				break
 			default:
 				return usage, nil
 			}
@@ -160,6 +164,9 @@ func main(){
 // 	}
 // 	go handleConnection(conn)
 // }
+	Debug= flag.Bool("d",false,"run in debug mode")
+	flag.Parse()
+	scraper.SetDebugMode(Debug)
 	stdlog = log.New(os.Stdout, "", log.Ldate|log.Ltime)
     errlog = log.New(os.Stderr, "", log.Ldate|log.Ltime)
     srv, err := daemon.New(name, description, daemon.SystemDaemon) //dependencies...)
@@ -168,7 +175,7 @@ func main(){
         os.Exit(1)
     }
 	service := &Service{srv}
-	if len(os.Args) < 2 {
+	if len(os.Args) < 2 || os.Args[1]=="-d" {
 		err=StartJob()
 		if err != nil{
 		errlog.Println(err)
