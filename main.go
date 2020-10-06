@@ -85,6 +85,7 @@ const (
 				stdlog.Println("Got signal:", killSignal)
 				stdlog.Println("Stoping listening on ", listener.Addr())
 				listener.Close()
+				StopJob()
 				if killSignal == os.Interrupt {
 					return "Daemon was interrupted by system signal", nil
 				}
@@ -123,7 +124,23 @@ func handleConnection(c net.Conn,listener net.Listener){
           data =scraper.GetAnnouncements()
         }else {
         data=scraper.GetUnknownResponse()
-        }
+		}
+		switch args {
+			case "events":
+				data= scraper.GetEvents()
+			case "announcements":
+				data= scraper.GetAnnouncements()
+			case "eventsterm":
+				data = scraper.GetEventsTerm()
+			case "eventsconky":
+				data = scraper.GetEventsConky()
+			case "announcementsterm":
+				data= scraper.GetAnnouncementsTerm()
+			case "announcementsconky":
+				data= scraper.GetAnnouncementsConky()
+			default:
+				data= scraper.GetUnknownResponse()
+			}
         _, err = c.Write(data)
         if err != nil {
             log.Fatalln("Write Connection: " , err)

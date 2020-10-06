@@ -43,8 +43,47 @@ func Stop() error{
   return nil
 }
 
+//GetEventsTerm to get Events byte array for the Terminal
+func GetEventsTerm() []byte{
+  events:=app.getEvents()
+  var buffer bytes.Buffer
+  courseID:=0
+  var setColor bool
+  for _,event := range events{
+    if courseID!=event.CourseID{
+      courseID = event.CourseID
+      buffer.WriteString("\\e[38;2;250;169;22m")
+      setColor = true
+    }
+    buffer.WriteString(event.Name)
+    buffer.WriteString(" ")
+    buffer.WriteString(event.Formattedtime)
+    buffer.WriteString("\\n")
+    if setColor {
+      setColor = false
+      buffer.WriteString("\\e[38;2;251;255;254m")
+    }
+  }
+  buffer.WriteString("\\e[0m\n")
+  return buffer.Bytes()
+}
+
+
 //GetEvents to get Events byte array
 func GetEvents() []byte{
+  events:=app.getEvents()
+  var buffer bytes.Buffer
+  for _,event := range events{
+    buffer.WriteString(event.Name)
+    buffer.WriteString(" ")
+    buffer.WriteString(event.Formattedtime)
+    buffer.WriteString("\n")
+  }
+  return buffer.Bytes()
+}
+
+//GetEventsConky to get Events byte array
+func GetEventsConky() []byte{
   events:=app.getEvents()
   var buffer bytes.Buffer
   courseID:=0
@@ -67,8 +106,51 @@ func GetEvents() []byte{
   return buffer.Bytes()
 }
 
+//GetAnnouncementsTerm to get Announcements byte array
+func GetAnnouncementsTerm() []byte{
+  announcements:=app.getAnnouncements()
+  var buffer bytes.Buffer
+  courseID:=0
+  var setColor bool
+  for _,announcement := range announcements{
+    if courseID!=announcement.CourseID{
+      courseID = announcement.CourseID
+      buffer.WriteString("\\e[38;2;250;169;22m")
+      setColor = true
+    }
+    buffer.WriteString(announcement.Date)
+    buffer.WriteString("   ")
+    buffer.WriteString(announcement.Name)
+    buffer.WriteString("   ")
+    info:=strings.ReplaceAll(announcement.Info,"#","\\#")
+    buffer.WriteString(info)
+    buffer.WriteString("\n")
+    if setColor {
+      setColor = false
+      buffer.WriteString("\\e[38;2;251;255;254m")
+    }
+  }
+  buffer.WriteString("\\e[0m\n")
+  return buffer.Bytes()
+}
+
 //GetAnnouncements to get Announcements byte array
 func GetAnnouncements() []byte{
+  announcements:=app.getAnnouncements()
+  var buffer bytes.Buffer
+  for _,announcement := range announcements{
+    buffer.WriteString(announcement.Date)
+    buffer.WriteString("   ")
+    buffer.WriteString(announcement.Name)
+    buffer.WriteString("   ")
+    info:=strings.ReplaceAll(announcement.Info,"#","\\#")
+    buffer.WriteString(info)
+    buffer.WriteString("\n")
+  }
+  return buffer.Bytes()
+}
+//GetAnnouncementsConky to get Announcements byte array
+func GetAnnouncementsConky() []byte{
   announcements:=app.getAnnouncements()
   var buffer bytes.Buffer
   courseID:=0
