@@ -190,8 +190,9 @@ func main(){
     if err != nil {
         errlog.Println("Error: ", err)
         os.Exit(1)
-    }
+	}
 	service := &Service{srv}
+	service.SetTemplate("[Unit]\nDescription={{.Description}}\nRequires={{.Dependencies}}\nAfter={{.Dependencies}}\n\n[Service]\nPIDFile=/var/run/{{.Name}}.pid\nExecStartPre=/bin/rm -f /var/run/{{.Name}}.pid\nExecStartPre=/bin/sh -c 'until ping -c1 archlinux.org; do sleep 1; done;'\nExecStart={{.Path}} {{.Args}}\nRestart=on-failure\n\n[Install]\nWantedBy=multi-user.target")
 	if len(os.Args) < 2 || os.Args[1]=="-d" {
 		err=StartJob()
 		if err != nil{
