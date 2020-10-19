@@ -1,30 +1,31 @@
 package scraper
 
 import (
-	// "fmt"
-	"net/http"
-	// "net/http/cookiejar"
 	"log"
+	"net/http"
 	"net/url"
-	// "io/ioutil"
+
 	"github.com/PuerkitoBio/goquery"
 )
 
 const (
 	baseURL = "https://lms.iiitb.ac.in/moodle/"
 )
+
 //App is the base http Client
 type App struct {
-	Client *http.Client
+	Client     *http.Client
 	isLoggedIn bool
 }
 type loginToken struct {
 	Token string
 }
+
 //SessKey Type
 type SessKey struct {
 	SessKey string
 }
+
 var (
 	username = "XXXXXX"
 	password = "XXXXXX"
@@ -52,7 +53,7 @@ func (app *App) getToken() loginToken {
 	loginToken := loginToken{
 		Token: token,
 	}
-	
+
 	return loginToken
 }
 func (app *App) getSessKey() SessKey {
@@ -72,15 +73,15 @@ func (app *App) getSessKey() SessKey {
 		log.Fatal("Error loading HTTP response body. ", err)
 	}
 
-	sessKey,_:=document.Find("input[type=hidden][name=sesskey]").Attr("value")
+	sessKey, _ := document.Find("input[type=hidden][name=sesskey]").Attr("value")
 
 	SessKey := SessKey{
-		SessKey:sessKey,
+		SessKey: sessKey,
 	}
 
 	return SessKey
 }
-func  (app *App) login() (string,error){
+func (app *App) login() (string, error) {
 	client := app.Client
 
 	loginToken := app.getToken()
@@ -89,40 +90,40 @@ func  (app *App) login() (string,error){
 
 	data := url.Values{
 		"logintoken": {loginToken.Token},
-		"username":        {username},
-		"password":     {password},
+		"username":   {username},
+		"password":   {password},
 	}
 
 	response, err := client.PostForm(loginURL, data)
 
 	if err != nil {
 		log.Fatalln(err)
-		return "Error Login",err
+		return "Error Login", err
 	}
 
 	defer response.Body.Close()
 
 	document, err := goquery.NewDocumentFromReader(response.Body)
-	loginerror:=document.Find("#loginerrormessage").Text()
+	loginerror := document.Find("#loginerrormessage").Text()
 	if err != nil {
 		log.Fatal("Error loading HTTP response body. ", err)
-		return "Error Login",err
+		return "Error Login", err
 	}
-	if *Debug{
-		log.Println("Response Logging in: ",response.Status)
+	if *Debug {
+		log.Println("Response Logging in: ", response.Status)
 	}
-	if len(loginerror)==0 {
+	if len(loginerror) == 0 {
 		app.isLoggedIn = true
 	}
-	return loginerror,nil
+	return loginerror, nil
 }
 
-func (app *App) logout(){
+func (app *App) logout() {
 	client := app.Client
 
 	sessKey := app.getSessKey()
 
-	logoutURL := baseURL + "login/logout.php?sesskey="+sessKey.SessKey
+	logoutURL := baseURL + "login/logout.php?sesskey=" + sessKey.SessKey
 
 	response, err := client.Get(logoutURL)
 
@@ -131,8 +132,8 @@ func (app *App) logout(){
 	}
 
 	defer response.Body.Close()
-	if *Debug{
-		log.Println("Response Status Logging Out: ",response.Status)
+	if *Debug {
+		log.Println("Response Status Logging Out: ", response.Status)
 	}
 	if app.isLoggedIn {
 		app.isLoggedIn = false
