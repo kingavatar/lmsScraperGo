@@ -1,0 +1,125 @@
+package scraper
+
+import (
+	// "fmt"
+	"net/http"
+	// "net/http/cookiejar"
+	"log"
+	"net/url"
+	"io/ioutil"
+	"github.com/PuerkitoBio/goquery"
+)
+
+const (
+	baseURL = "https://lms.iiitb.ac.in/moodle/"
+)
+//App is the base http Client
+type App struct {
+	Client *http.Client
+}
+type loginToken struct {
+	Token string
+}
+//SessKey Type
+type SessKey struct {
+	SessKey string
+}
+var (
+	username = "yourusername"
+	password = "yourpassword"
+)
+func (app *App) getToken() loginToken {
+	loginURL := baseURL + "login/index.php"
+	client := app.Client
+
+	response, err := client.Get(loginURL)
+
+	if err != nil {
+		log.Fatalln("Error fetching response. ", err)
+	}
+
+	defer response.Body.Close()
+
+	document, err := goquery.NewDocumentFromReader(response.Body)
+	if err != nil {
+		log.Fatal("Error loading HTTP response body. ", err)
+	}
+
+	token, _ := document.Find("input[name='logintoken']").Attr("value")
+
+	loginToken := loginToken{
+		Token: token,
+	}
+
+	return loginToken
+}
+func (app *App) getSessKey() SessKey {
+	loginURL := baseURL + "my/"
+	client := app.Client
+
+	response, err := client.Get(loginURL)
+
+	if err != nil {
+		log.Fatalln("Error fetching response. ", err)
+	}
+
+	defer response.Body.Close()
+
+	document, err := goquery.NewDocumentFromReader(response.Body)
+	if err != nil {
+		log.Fatal("Error loading HTTP response body. ", err)
+	}
+
+	sessKey,_:=document.Find("input[type=hidden][name=sesskey]").Attr("value")
+
+	SessKey := SessKey{
+		SessKey:sessKey,
+	}
+
+	return SessKey
+}
+func  (app *App) login() {
+	client := app.Client
+
+	loginToken := app.getToken()
+
+	loginURL := baseURL + "login/index.php"
+
+	data := url.Values{
+		"logintoken": {loginToken.Token},
+		"username":        {username},
+		"password":     {password},
+	}
+
+	response, err := client.PostForm(loginURL, data)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer response.Body.Close()
+
+	_, err = ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println("Response Loggen in: ",response.Status)
+}
+
+func (app *App) logout(){
+	client := app.Client
+
+	sessKey := app.getSessKey()
+
+	logoutURL := baseURL + "login/logout.php?sesskey="+sessKey.SessKey
+
+	response, err := client.Get(logoutURL)
+
+	if err != nil {
+		log.Fatalln("Error fetching response. ", err)
+	}
+
+	defer response.Body.Close()
+	log.Println("Response Status Logged Out: ",response.Status)
+
+}
