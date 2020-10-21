@@ -1,5 +1,12 @@
 # lmsScraperGo
 
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/kingavatar/lmsScraperGo)
+[![Go Report Card](https://goreportcard.com/badge/github.com/kingavatar/lmsScraperGo)](https://goreportcard.com/report/github.com/kingavatar/lmsScraperGo)
+[![GoDoc](https://godoc.org/github.com/kingavatar/lmsScraperGo/scraper?status.svg)](https://godoc.org/github.com/kingavatar/lmsScraperGo/scraper)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/kingavatar/lmsScraperGo/scraper)](https://pkg.go.dev/github.com/kingavatar/lmsScraperGo/scraper)
+
+[![forthebadge made-with-go](https://forthebadge.com/images/badges/made-with-go.svg)](https://golang.org/)
+
 A Daemon Scraping Service for `LMS`(Learning Management System) written for my college IIITB but can serve as template for other `LMS` portals as well.
 
 This Application is written in `Go` (`golang`) and scrapes for assignments and announcements of favorite(`starred` in LMS) courses.
