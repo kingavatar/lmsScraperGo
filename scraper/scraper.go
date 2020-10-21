@@ -175,11 +175,11 @@ func GetAnnouncementsConky() []byte {
 	return buffer.Bytes()
 }
 
-//GetUnknownResponse for Unkown Args
-func GetUnknownResponse() []byte{
-    var buffer bytes.Buffer
-    buffer.WriteString("Unknown Command\n")
-    return buffer.Bytes()
+//GetUnknownResponse for Unknown Args
+func GetUnknownResponse() []byte {
+	var buffer bytes.Buffer
+	buffer.WriteString("Unknown Command\n")
+	return buffer.Bytes()
 }
 
 //SetUserPass sets username and password

@@ -121,13 +121,7 @@ func handleConnection(c net.Conn, listener net.Listener) {
 	fmt.Printf("Received: %v", string(data))
 	var args string
 	args = strings.TrimSpace(string(data))
-	if args == "events" {
-		data = scraper.GetEvents()
-	} else if args == "announcements" {
-		data = scraper.GetAnnouncements()
-	} else {
-		data = scraper.GetUnknownResponse()
-	}
+
 	switch args {
 	case "events":
 		data = scraper.GetEvents()
