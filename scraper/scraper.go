@@ -10,10 +10,11 @@ import (
 
 var app App
 
-//Debug to set debugging mode
+//Debug to set debugging mode for more logging output
 var Debug *bool
 
-//Start Scraper
+//Start Scraper which logs into lms portal and creates a client cookiejar which stores cookie which is useful to maintain
+//login session throughout the running of daemon service.
 func Start() error {
 	// file, errlog := os.OpenFile("logs.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	// if errlog != nil {
@@ -32,7 +33,7 @@ func Start() error {
 	return nil
 }
 
-//Stop Scraper
+//Stop Scraper application and logout of lms called when daemon is stopped
 func Stop() error {
 	if app.isLoggedIn {
 		app.logout()
@@ -42,7 +43,7 @@ func Stop() error {
 	return nil
 }
 
-//GetEventsTerm to get Events byte array for the Terminal
+//GetEventsTerm function helps to get Events byte array with terminal color support
 func GetEventsTerm() []byte {
 	events := app.getEvents()
 	var buffer bytes.Buffer
@@ -51,7 +52,7 @@ func GetEventsTerm() []byte {
 	for _, event := range events {
 		if courseID != event.CourseID {
 			courseID = event.CourseID
-			buffer.WriteString("\\e[38;2;250;169;22m")
+			buffer.WriteString("\\x1b[38;2;250;169;22m")
 			setColor = true
 		}
 		buffer.WriteString(event.Name)
@@ -60,14 +61,14 @@ func GetEventsTerm() []byte {
 		buffer.WriteString("\\n")
 		if setColor {
 			setColor = false
-			buffer.WriteString("\\e[38;2;251;255;254m")
+			buffer.WriteString("\\x1b[38;2;251;255;254m")
 		}
 	}
-	buffer.WriteString("\\e[0m\n")
+	buffer.WriteString("\\x1b[0m\n")
 	return buffer.Bytes()
 }
 
-//GetEvents to get Events byte array
+//GetEvents to get Events byte array to be sent to socket client
 func GetEvents() []byte {
 	events := app.getEvents()
 	var buffer bytes.Buffer
@@ -80,7 +81,7 @@ func GetEvents() []byte {
 	return buffer.Bytes()
 }
 
-//GetEventsConky to get Events byte array
+//GetEventsConky to get Events byte array with conky color support
 func GetEventsConky() []byte {
 	events := app.getEvents()
 	var buffer bytes.Buffer
@@ -104,7 +105,7 @@ func GetEventsConky() []byte {
 	return buffer.Bytes()
 }
 
-//GetAnnouncementsTerm to get Announcements byte array
+//GetAnnouncementsTerm to get Announcements byte array with terminal color support
 func GetAnnouncementsTerm() []byte {
 	announcements := app.getAnnouncements()
 	var buffer bytes.Buffer
@@ -113,7 +114,7 @@ func GetAnnouncementsTerm() []byte {
 	for _, announcement := range announcements {
 		if courseID != announcement.CourseID {
 			courseID = announcement.CourseID
-			buffer.WriteString("\\e[38;2;250;169;22m")
+			buffer.WriteString("\\x1b[38;2;250;169;22m")
 			setColor = true
 		}
 		buffer.WriteString(announcement.Date)
@@ -125,14 +126,14 @@ func GetAnnouncementsTerm() []byte {
 		buffer.WriteString("\n")
 		if setColor {
 			setColor = false
-			buffer.WriteString("\\e[38;2;251;255;254m")
+			buffer.WriteString("\\x1b[38;2;251;255;254m")
 		}
 	}
-	buffer.WriteString("\\e[0m\n")
+	buffer.WriteString("\\x1b[0m\n")
 	return buffer.Bytes()
 }
 
-//GetAnnouncements to get Announcements byte array
+//GetAnnouncements to get Announcements byte array to be send to socket client
 func GetAnnouncements() []byte {
 	announcements := app.getAnnouncements()
 	var buffer bytes.Buffer
@@ -148,7 +149,7 @@ func GetAnnouncements() []byte {
 	return buffer.Bytes()
 }
 
-//GetAnnouncementsConky to get Announcements byte array
+//GetAnnouncementsConky to get Announcements byte array with conky color support
 func GetAnnouncementsConky() []byte {
 	announcements := app.getAnnouncements()
 	var buffer bytes.Buffer
@@ -175,25 +176,25 @@ func GetAnnouncementsConky() []byte {
 	return buffer.Bytes()
 }
 
-//GetUnknownResponse for Unknown Args
+//GetUnknownResponse for Unknown Args given to Socket server
 func GetUnknownResponse() []byte {
 	var buffer bytes.Buffer
 	buffer.WriteString("Unknown Command\n")
 	return buffer.Bytes()
 }
 
-//SetUserPass sets username and password
+//SetUserPass sets username and password to login to lms portal
 func SetUserPass(user string, pass string) {
 	username = user
 	password = pass
 }
 
-//GetUserName returns username
+//GetUserName returns username which is used to login into lms portal
 func GetUserName() string {
 	return username
 }
 
-//SetDebugMode to set debug Mode
+//SetDebugMode to set debug Mode for enabling more logs
 func SetDebugMode(debug *bool) {
 	Debug = debug
 }
