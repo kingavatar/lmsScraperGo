@@ -2,6 +2,7 @@ package scraper
 
 import (
 	"log"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 
@@ -191,10 +192,8 @@ func (app *App) getEvents() []Event {
 		log.Fatalln("Error Reading json Data: ", err)
 	}
 	for _, events := range result[0].Data.Events {
-		formtime := events.Formattedtime[88:108] + " " + events.Formattedtime[113:]
-		if events.Formattedtime[107:108] == "<" {
-			formtime = events.Formattedtime[88:107] + " " + events.Formattedtime[112:]
-		}
+		doc, _ := goquery.NewDocumentFromReader(strings.NewReader(events.Formattedtime))
+		formtime := doc.Text()
 		event := Event{
 			Name:          events.Name,
 			CourseID:      events.C.ID,
